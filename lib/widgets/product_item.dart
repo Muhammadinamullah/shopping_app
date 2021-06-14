@@ -40,6 +40,7 @@ class ProductItem extends StatelessWidget {
               color: Theme.of(context).accentColor,
               onPressed: () {
                 product.favoriteStatus();
+                print('is favorite');
               },
             ),
           ),
