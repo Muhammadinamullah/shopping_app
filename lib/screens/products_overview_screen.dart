@@ -1,26 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/providers/product.dart';
-import 'package:flutter_complete_guide/providers/products.dart';
+import 'package:flutter_complete_guide/providers/cart.dart';
+import 'package:flutter_complete_guide/screens/cart_screen.dart';
+import 'package:flutter_complete_guide/widgets/badge.dart';
 import 'package:provider/provider.dart';
+// import 'package:flutter_complete_guide/providers/product.dart';
+// import 'package:flutter_complete_guide/providers/products.dart';
+// import 'package:provider/provider.dart';
 
 import '../widgets/products_grid.dart';
 
 enum filterOptions { Favorites, All }
 
-class ProductsOverviewScreen extends StatelessWidget {
+class ProductsOverviewScreen extends StatefulWidget {
+  @override
+  _ProductsOverviewScreenState createState() => _ProductsOverviewScreenState();
+}
+
+class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
+  var _showOnlyFavorites = false;
+
   @override
   Widget build(BuildContext context) {
-    final productsItems = Provider.of<Products>(context, listen: false);
+    // final productsItems = Provider.of<Products>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         actions: [
           PopupMenuButton(
               onSelected: (filterOptions selectedValue) {
-                if (selectedValue == filterOptions.Favorites) {
-                  productsItems.showFavoritesOnly();
-                } else {
-                  productsItems.showAll();
-                }
+                setState(() {
+                  if (selectedValue == filterOptions.Favorites) {
+                    _showOnlyFavorites = true;
+                    // productsItems.showFavoritesOnly();
+                  } else {
+                    _showOnlyFavorites = false;
+                    // productsItems.showAll();
+                  }
+                });
               },
               icon: Icon(
                 Icons.more_vert,
@@ -34,11 +49,23 @@ class ProductsOverviewScreen extends StatelessWidget {
                       child: Text('Show All'),
                       value: filterOptions.All,
                     )
-                  ])
+                  ]),
+          Consumer<Cart>(
+            builder: (_, cart, ch) => Badge(
+              child: ch,
+              value: cart.itemCount.toString(),
+            ),
+            child: IconButton(
+              icon: Icon(Icons.shopping_cart),
+              onPressed: () {
+                Navigator.of(context).pushNamed(CartScreen.routePath);
+              },
+            ),
+          ),
         ],
         title: Text('MyShop'),
       ),
-      body: ProductsGrid(),
+      body: ProductsGrid(_showOnlyFavorites),
     );
   }
 }
