@@ -7,6 +7,7 @@ class EditProductScreen extends StatefulWidget {
 }
 
 class _EditProductScreenState extends State<EditProductScreen> {
+  final _priceFocusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,8 +20,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
           child: ListView(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Title'),
+                decoration: InputDecoration(
+                  labelText: 'Title',
+                ),
+                onFieldSubmitted: (_) {
+                  FocusScope.of(context).requestFocus(_priceFocusNode);
+                },
                 textInputAction: TextInputAction.next,
+              ),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Price',
+                ),
+                keyboardType: TextInputType.number,
+                textInputAction: TextInputAction.next,
+                focusNode: _priceFocusNode,
               )
             ],
           ),
