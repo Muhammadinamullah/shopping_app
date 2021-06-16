@@ -40,6 +40,10 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   void _saveForm() {
+    final _isValid = _formGlobalKey.currentState.validate();
+    if (!_isValid) {
+      return;
+    }
     _formGlobalKey.currentState.save();
     print(_editedProduct.id);
     print(_editedProduct.title);
@@ -73,6 +77,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 ),
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_priceFocusNode);
+                },
+                // ignore: missing_return
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter the Title';
+                  }
                 },
                 onSaved: (value) {
                   _editedProduct = Product(
