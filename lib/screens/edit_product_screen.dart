@@ -25,13 +25,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   @override
   void initState() {
-    // _imageUrlFocusNode.addListener(_updateImageUrl);
+    _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
   }
 
   @override
   void dispose() {
-    // _imageUrlFocusNode.removeListener(_updateImageUrl);
+    _imageUrlFocusNode.removeListener(_updateImageUrl);
     _priceFocusNode.dispose();
     _descriptionFocusNode.dispose();
     _imageUrlFocusNode.dispose();
@@ -52,11 +52,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
     print(_editedProduct.price);
   }
 
-  // void _updateImageUrl() {
-  //   if (!_imageUrlFocusNode.hasFocus) {
-  //     setState(() {});
-  //   }
-  // }
+  void _updateImageUrl() {
+    if (!_imageUrlFocusNode.hasFocus) {
+      validator:
+      // ignore: unnecessary_statements
+      (value) {
+        if (_imageUrlController.text.isEmpty ||
+            !_imageUrlController.text.startsWith('http') &&
+                !_imageUrlController.text.startsWith('https') ||
+            !_imageUrlController.text.endsWith('.png') &&
+                !_imageUrlController.text.endsWith('.jpg') &&
+                !_imageUrlController.text.endsWith('.jpeg')) {
+          return;
+        }
+      };
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +115,19 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_descriptionFocusNode);
                 },
+                // ignore: missing_return
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Please enter the Price!';
+                  }
+                  if (double.tryParse(value) == null) {
+                    return 'Please Enter valid amount!';
+                  }
+                  if (double.parse(value) <= 0) {
+                    return 'Please enter valid pirice';
+                  }
+                  ;
+                },
                 onSaved: (value) {
                   _editedProduct = Product(
                       id: null,
@@ -124,6 +149,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       description: value,
                       price: _editedProduct.price,
                       imageUrl: _editedProduct.imageUrl);
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Enter Description about Product!';
+                  }
+                  if (value.length < 10) {
+                    return 'Description must be atleast 10 characters!';
+                  }
+                  return null;
                 },
               ),
               Row(
@@ -158,6 +192,21 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           description: _editedProduct.description,
                           price: _editedProduct.price,
                           imageUrl: value);
+                    },
+                    // ignore: missing_return
+                    validator: (value) {
+                      if (value.isEmpty) {
+                        return 'Please Enter Image url';
+                      }
+                      if (!value.startsWith('htto') ||
+                          !value.startsWith('https')) {
+                        return 'Please enter Valid URL';
+                      }
+                      if (!value.endsWith('.png') &&
+                          !value.endsWith('.jpg') &&
+                          !value.endsWith('.jpeg')) {
+                        return 'Please enter Valid URL';
+                      }
                     },
                     onEditingComplete: () {
                       setState(() {});
