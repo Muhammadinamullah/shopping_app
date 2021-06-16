@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../providers/products.dart';
+
 import '../providers/product.dart';
 import 'package:provider/provider.dart';
 
@@ -15,12 +16,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _descriptionFocusNode = FocusNode();
   final _imageUrlFocusNode = FocusNode();
   final _imageUrlController = TextEditingController();
-  final _formGlobalKey = GlobalKey<FormState>();
+  final _form = GlobalKey<FormState>();
   var _editedProduct = Product(
     id: null,
     title: '',
-    description: '',
     price: 0,
+    description: '',
     imageUrl: '',
   );
 
@@ -30,12 +31,33 @@ class _EditProductScreenState extends State<EditProductScreen> {
     'price': '',
     'imageUrl': '',
   };
-  //var _isInit = true;
+
+  var _isInit = true;
 
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      final productId = ModalRoute.of(context).settings.arguments as String;
+      if (productId != null) {
+        _editedProduct =
+            Provider.of<Products>(context, listen: false).findById(productId);
+        _initValues = {
+          'title': _editedProduct.title,
+          'description': _editedProduct.description,
+          'price': _editedProduct.price.toString(),
+          'imageUrl': '',
+        };
+        _imageUrlController.text = _editedProduct.imageUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
   }
 
   @override
@@ -49,34 +71,38 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   void _saveForm() {
-    final _isValid = _formGlobalKey.currentState.validate();
+    final _isValid = _form.currentState.validate();
+
     if (!_isValid) {
       return;
     }
-    _formGlobalKey.currentState.save();
-    Provider.of(context, listen: false).addProduct(_editedProduct);
-    Navigator.of(context).pop();
+    _form.currentState.save();
     // print(_editedProduct.id);
     // print(_editedProduct.title);
     // print(_editedProduct.description);
     // print(_editedProduct.imageUrl);
     // print(_editedProduct.price);
+    if (_editedProduct.id != null) {
+      Provider.of<Products>(context, listen: false)
+          .updateProduct(_editedProduct.id, _editedProduct);
+    } else {
+      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+    }
+
+    Navigator.of(context).pop();
   }
 
   void _updateImageUrl() {
     if (!_imageUrlFocusNode.hasFocus) {
-      validator:
-      // ignore: unnecessary_statements
-      (value) {
-        if (_imageUrlController.text.isEmpty ||
-            !_imageUrlController.text.startsWith('http') &&
-                !_imageUrlController.text.startsWith('https') ||
-            !_imageUrlController.text.endsWith('.png') &&
-                !_imageUrlController.text.endsWith('.jpg') &&
-                !_imageUrlController.text.endsWith('.jpeg')) {
-          return;
-        }
-      };
+      if (_imageUrlController.text.isEmpty ||
+          !_imageUrlController.text.startsWith('http') &&
+              !_imageUrlController.text.startsWith('https') ||
+          !_imageUrlController.text.endsWith('.png') &&
+              !_imageUrlController.text.endsWith('.jpg') &&
+              !_imageUrlController.text.endsWith('.jpeg')) {
+        return;
+      }
+
       setState(() {});
     }
   }
@@ -91,10 +117,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formGlobalKey,
+          key: _form,
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _initValues['title'],
                 decoration: InputDecoration(
                   labelText: 'Title',
                 ),
@@ -110,15 +137,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
                 onSaved: (value) {
                   _editedProduct = Product(
-                      id: _editedProduct.id,
-                      title: value,
-                      description: _editedProduct.description,
-                      price: _editedProduct.price,
-                      imageUrl: _editedProduct.imageUrl);
+                    title: value,
+                    price: _editedProduct.price,
+                    description: _editedProduct.description,
+                    imageUrl: _editedProduct.imageUrl,
+                    id: _editedProduct.id,
+                    isFavorite: _editedProduct.isFavorite,
+                  );
                 },
                 textInputAction: TextInputAction.next,
               ),
               TextFormField(
+                initialValue: _initValues['price'],
                 decoration: InputDecoration(
                   labelText: 'Price',
                 ),
@@ -142,25 +172,30 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
                 onSaved: (value) {
                   _editedProduct = Product(
-                      id: _editedProduct.id,
-                      title: _editedProduct.title,
-                      description: _editedProduct.description,
-                      price: double.parse(value),
-                      imageUrl: _editedProduct.imageUrl);
+                    title: _editedProduct.title,
+                    description: _editedProduct.description,
+                    price: double.parse(value),
+                    imageUrl: _editedProduct.imageUrl,
+                    id: _editedProduct.id,
+                    isFavorite: _editedProduct.isFavorite,
+                  );
                 },
               ),
               TextFormField(
+                initialValue: _initValues['description'],
                 decoration: InputDecoration(labelText: 'Description'),
                 keyboardType: TextInputType.multiline,
                 maxLines: 3,
                 focusNode: _descriptionFocusNode,
                 onSaved: (value) {
                   _editedProduct = Product(
-                      id: _editedProduct.id,
-                      title: _editedProduct.title,
-                      description: value,
-                      price: _editedProduct.price,
-                      imageUrl: _editedProduct.imageUrl);
+                    title: _editedProduct.title,
+                    description: value,
+                    price: _editedProduct.price,
+                    imageUrl: _editedProduct.imageUrl,
+                    id: _editedProduct.id,
+                    isFavorite: _editedProduct.isFavorite,
+                  );
                 },
                 validator: (value) {
                   if (value.isEmpty) {
@@ -193,17 +228,20 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   ),
                   Expanded(
                       child: TextFormField(
+                    //initialValue: _initValues['ImageUrl'],
                     decoration: InputDecoration(labelText: 'Image URL'),
                     keyboardType: TextInputType.url,
                     textInputAction: TextInputAction.done,
                     controller: _imageUrlController,
                     onSaved: (value) {
                       _editedProduct = Product(
-                          id: _editedProduct.id,
-                          title: _editedProduct.title,
-                          description: _editedProduct.description,
-                          price: _editedProduct.price,
-                          imageUrl: value);
+                        id: _editedProduct.id,
+                        title: _editedProduct.title,
+                        description: _editedProduct.description,
+                        price: _editedProduct.price,
+                        imageUrl: value,
+                        isFavorite: _editedProduct.isFavorite,
+                      );
                     },
                     // ignore: missing_return
                     validator: (value) {

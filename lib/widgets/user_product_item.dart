@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_complete_guide/screens/edit_product_screen.dart';
 
 class UserProductItem extends StatelessWidget {
+  final String id;
   final String title;
   final String ImageUrl;
 
-  UserProductItem(this.title, this.ImageUrl);
+  UserProductItem(this.id, this.title, this.ImageUrl);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +20,10 @@ class UserProductItem extends StatelessWidget {
           child: Row(
             children: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context)
+                      .pushNamed(EditProductScreen.routePath, arguments: id);
+                },
                 color: Theme.of(context).primaryColor,
                 icon: Icon(Icons.edit),
               ),
