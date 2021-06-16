@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/providers/product.dart';
+import '../providers/products.dart';
+import '../providers/product.dart';
 import 'package:provider/provider.dart';
 
 class EditProductScreen extends StatefulWidget {
@@ -23,6 +24,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
     imageUrl: '',
   );
 
+  var _initValues = {
+    'title': '',
+    'description': '',
+    'price': '',
+    'imageUrl': '',
+  };
+  //var _isInit = true;
+
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
@@ -45,11 +54,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _formGlobalKey.currentState.save();
-    print(_editedProduct.id);
-    print(_editedProduct.title);
-    print(_editedProduct.description);
-    print(_editedProduct.imageUrl);
-    print(_editedProduct.price);
+    Provider.of(context, listen: false).addProduct(_editedProduct);
+    Navigator.of(context).pop();
+    // print(_editedProduct.id);
+    // print(_editedProduct.title);
+    // print(_editedProduct.description);
+    // print(_editedProduct.imageUrl);
+    // print(_editedProduct.price);
   }
 
   void _updateImageUrl() {
@@ -95,10 +106,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   if (value.isEmpty) {
                     return 'Please enter the Title';
                   }
+                  return null;
                 },
                 onSaved: (value) {
                   _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
                       title: value,
                       description: _editedProduct.description,
                       price: _editedProduct.price,
@@ -130,7 +142,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
                 onSaved: (value) {
                   _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
                       title: _editedProduct.title,
                       description: _editedProduct.description,
                       price: double.parse(value),
@@ -144,7 +156,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 focusNode: _descriptionFocusNode,
                 onSaved: (value) {
                   _editedProduct = Product(
-                      id: null,
+                      id: _editedProduct.id,
                       title: _editedProduct.title,
                       description: value,
                       price: _editedProduct.price,
@@ -187,7 +199,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     controller: _imageUrlController,
                     onSaved: (value) {
                       _editedProduct = Product(
-                          id: null,
+                          id: _editedProduct.id,
                           title: _editedProduct.title,
                           description: _editedProduct.description,
                           price: _editedProduct.price,
@@ -198,7 +210,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                       if (value.isEmpty) {
                         return 'Please Enter Image url';
                       }
-                      if (!value.startsWith('htto') ||
+                      if (!value.startsWith('http') &&
                           !value.startsWith('https')) {
                         return 'Please enter Valid URL';
                       }
