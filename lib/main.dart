@@ -6,7 +6,7 @@ import 'package:flutter_complete_guide/screens/edit_product_screen.dart';
 import 'package:flutter_complete_guide/screens/orders_screen.dart';
 import 'package:flutter_complete_guide/screens/product_detail_screen.dart';
 import 'package:flutter_complete_guide/screens/user_product_screen.dart';
-import 'package:flutter_complete_guide/widgets/order_item.dart';
+
 import 'package:provider/provider.dart';
 
 import '../providers/products.dart';

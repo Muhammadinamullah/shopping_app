@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_complete_guide/providers/product.dart';
 import 'package:provider/provider.dart';
 
 class EditProductScreen extends StatefulWidget {
@@ -13,16 +14,24 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _descriptionFocusNode = FocusNode();
   final _imageUrlFocusNode = FocusNode();
   final _imageUrlController = TextEditingController();
+  final _formGlobalKey = GlobalKey<FormState>();
+  var _editedProduct = Product(
+    id: null,
+    title: '',
+    description: '',
+    price: 0,
+    imageUrl: '',
+  );
 
   @override
   void initState() {
-    _imageUrlFocusNode.addListener(_updateImageUrl);
+    // _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
   }
 
   @override
   void dispose() {
-    _imageUrlFocusNode.removeListener(_updateImageUrl);
+    // _imageUrlFocusNode.removeListener(_updateImageUrl);
     _priceFocusNode.dispose();
     _descriptionFocusNode.dispose();
     _imageUrlFocusNode.dispose();
@@ -30,21 +39,32 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
-  void _updateImageUrl() {
-    if (!_imageUrlFocusNode.hasFocus) {
-      setState(() {});
-    }
+  void _saveForm() {
+    _formGlobalKey.currentState.save();
+    print(_editedProduct.id);
+    print(_editedProduct.title);
+    print(_editedProduct.description);
+    print(_editedProduct.imageUrl);
+    print(_editedProduct.price);
   }
+
+  // void _updateImageUrl() {
+  //   if (!_imageUrlFocusNode.hasFocus) {
+  //     setState(() {});
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Products'),
+        actions: [IconButton(onPressed: _saveForm, icon: Icon(Icons.save))],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
+          key: _formGlobalKey,
           child: ListView(
             children: [
               TextFormField(
@@ -53,6 +73,14 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 ),
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_priceFocusNode);
+                },
+                onSaved: (value) {
+                  _editedProduct = Product(
+                      id: null,
+                      title: value,
+                      description: _editedProduct.description,
+                      price: _editedProduct.price,
+                      imageUrl: _editedProduct.imageUrl);
                 },
                 textInputAction: TextInputAction.next,
               ),
@@ -65,12 +93,28 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 onFieldSubmitted: (_) {
                   FocusScope.of(context).requestFocus(_descriptionFocusNode);
                 },
+                onSaved: (value) {
+                  _editedProduct = Product(
+                      id: null,
+                      title: _editedProduct.title,
+                      description: _editedProduct.description,
+                      price: double.parse(value),
+                      imageUrl: _editedProduct.imageUrl);
+                },
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Description'),
                 keyboardType: TextInputType.multiline,
                 maxLines: 3,
                 focusNode: _descriptionFocusNode,
+                onSaved: (value) {
+                  _editedProduct = Product(
+                      id: null,
+                      title: _editedProduct.title,
+                      description: value,
+                      price: _editedProduct.price,
+                      imageUrl: _editedProduct.imageUrl);
+                },
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -92,16 +136,23 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           ),
                   ),
                   Expanded(
-                    child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Image URL'),
-                        keyboardType: TextInputType.url,
-                        textInputAction: TextInputAction.done,
-                        controller: _imageUrlController,
-                        focusNode: _imageUrlFocusNode,
-                        onEditingComplete: () {
-                          setState(() {});
-                        }),
-                  )
+                      child: TextFormField(
+                    decoration: InputDecoration(labelText: 'Image URL'),
+                    keyboardType: TextInputType.url,
+                    textInputAction: TextInputAction.done,
+                    controller: _imageUrlController,
+                    onSaved: (value) {
+                      _editedProduct = Product(
+                          id: null,
+                          title: _editedProduct.title,
+                          description: _editedProduct.description,
+                          price: _editedProduct.price,
+                          imageUrl: value);
+                    },
+                    onEditingComplete: () {
+                      setState(() {});
+                    },
+                  )),
                 ],
               )
             ],
