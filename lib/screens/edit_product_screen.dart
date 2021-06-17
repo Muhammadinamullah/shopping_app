@@ -34,6 +34,8 @@ class _EditProductScreenState extends State<EditProductScreen> {
 
   var _isInit = true;
 
+  var _isloading = false;
+
   @override
   void initState() {
     _imageUrlFocusNode.addListener(_updateImageUrl);
@@ -77,19 +79,25 @@ class _EditProductScreenState extends State<EditProductScreen> {
       return;
     }
     _form.currentState.save();
-    // print(_editedProduct.id);
-    // print(_editedProduct.title);
-    // print(_editedProduct.description);
-    // print(_editedProduct.imageUrl);
-    // print(_editedProduct.price);
+    setState(() {
+      _isloading = true;
+    });
+
     if (_editedProduct.id != null) {
       Provider.of<Products>(context, listen: false)
           .updateProduct(_editedProduct.id, _editedProduct);
     } else {
-      Provider.of<Products>(context, listen: false).addProduct(_editedProduct);
+      Provider.of<Products>(context, listen: false)
+          .addProduct(_editedProduct)
+          .then((_) {
+        setState(() {
+          _isloading = true;
+        });
+        Navigator.of(context).pop();
+      });
     }
 
-    Navigator.of(context).pop();
+    // Navigator.of(context).pop();
   }
 
   void _updateImageUrl() {
@@ -115,7 +123,11 @@ class _EditProductScreenState extends State<EditProductScreen> {
         actions: [IconButton(onPressed: _saveForm, icon: Icon(Icons.save))],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: _isloading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : const EdgeInsets.all(16.0),
         child: Form(
           key: _form,
           child: ListView(
