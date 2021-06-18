@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_complete_guide/providers/cart.dart';
+import 'package:http/http.dart' as http;
 
 class OrderItem {
   final String id;
@@ -20,7 +20,9 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProduct, double total) {
+  Future<void> addOrder(List<CartItem> cartProduct, double total) async {
+    final url = Uri.parse(
+        'https://products-items-default-rtdb.firebaseio.com/products.json');
     _orders.insert(
         0,
         OrderItem(
