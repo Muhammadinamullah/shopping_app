@@ -5,9 +5,6 @@ import '../screens/cart_screen.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/badge.dart';
 import 'package:provider/provider.dart';
-// import 'package:flutter_complete_guide/providers/product.dart';
-// import 'package:flutter_complete_guide/providers/products.dart';
-// import 'package:provider/provider.dart';
 
 import '../widgets/products_grid.dart';
 
@@ -45,6 +42,10 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
     }
     _isInit = false;
     super.didChangeDependencies();
+  }
+
+  Future<void> refreshProducts(BuildContext context) async {
+    await Provider.of<Products>(context, listen: false).fetchAndSetProducts();
   }
 
   @override
@@ -94,11 +95,14 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
         title: Text('MyShop'),
       ),
       drawer: AppDrawer(),
-      body: _isloading
-          ? Center(
-              child: CircularProgressIndicator(),
-            )
-          : ProductsGrid(_showOnlyFavorites),
+      body: RefreshIndicator(
+        onRefresh: () => refreshProducts(context),
+        child: _isloading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : ProductsGrid(_showOnlyFavorites),
+      ),
     );
   }
 }
