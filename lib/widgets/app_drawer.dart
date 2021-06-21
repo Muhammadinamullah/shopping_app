@@ -28,7 +28,8 @@ class AppDrawer extends StatelessWidget {
             ),
             title: Text('Payment'),
             onTap: () {
-              Navigator.of(context).pushReplacementNamed(OrderScreen.routePath);
+              Navigator.of(context)
+                  .pushReplacementNamed(OrdersScreen.routePath);
             },
           ),
           ListTile(

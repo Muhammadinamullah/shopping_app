@@ -1,25 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_complete_guide/providers/orders.dart';
-import 'package:flutter_complete_guide/widgets/app_drawer.dart';
-import 'package:flutter_complete_guide/widgets/order_item.dart';
 import 'package:provider/provider.dart';
 
-class OrderScreen extends StatelessWidget {
+import '../providers/orders.dart' show Orders;
+import '../widgets/order_item.dart';
+import '../widgets/app_drawer.dart';
+
+class OrdersScreen extends StatefulWidget {
   static const routePath = '/orders';
 
   @override
+  _OrdersScreenState createState() => _OrdersScreenState();
+}
+
+class _OrdersScreenState extends State<OrdersScreen> {
+  var _isLoading = false;
+
+  @override
+  void initState() {
+    //Future.delayed(Duration.zero).then((_) async {
+    setState(() {
+      _isLoading = true;
+    });
+    Provider.of<Orders>(context, listen: false)
+        .fetchAndSetOrders()
+        .then((_) => null);
+    setState(() {
+      _isLoading = false;
+    });
+    //  });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final ordersData = Provider.of<Orders>(context);
+    final orderData = Provider.of<Orders>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Orders'),
+        title: Text('Your Orders'),
       ),
       drawer: AppDrawer(),
-      body: ListView.builder(
-        itemCount: ordersData.orders.length,
-        itemBuilder: (ctx, orderIndex) =>
-            OrdersItem(ordersData.orders[orderIndex]),
-      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: orderData.orders.length,
+              itemBuilder: (ctx, i) => OrdersItem(orderData.orders[i]),
+            ),
     );
   }
 }

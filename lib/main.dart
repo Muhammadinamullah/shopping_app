@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/providers/cart.dart';
 import 'package:flutter_complete_guide/providers/orders.dart';
+import 'package:flutter_complete_guide/screens/authScreen.dart';
 import 'package:flutter_complete_guide/screens/cart_screen.dart';
 import 'package:flutter_complete_guide/screens/edit_product_screen.dart';
 import 'package:flutter_complete_guide/screens/orders_screen.dart';
@@ -36,11 +37,11 @@ class MyApp extends StatelessWidget {
             accentColor: Colors.deepOrange,
             fontFamily: 'Lato',
           ),
-          home: ProductsOverviewScreen(),
+          home: AuthScreen(),
           routes: {
             ProductDetailScreen.routePath: (ctx) => ProductDetailScreen(),
             CartScreen.routePath: (ctx) => CartScreen(),
-            OrderScreen.routePath: (ctx) => OrderScreen(),
+            OrdersScreen.routePath: (ctx) => OrdersScreen(),
             UserProductsScreen.routePath: (ctx) => UserProductsScreen(),
             EditProductScreen.routePath: (ctx) => EditProductScreen(),
           }),

@@ -8,19 +8,58 @@ class OrderItem {
   final String id;
   final double amount;
   final List<CartItem> products;
-  final DateTime dataTime;
+  final DateTime dateTime;
 
   OrderItem(
       {@required this.id,
       @required this.amount,
       @required this.products,
-      @required this.dataTime});
+      @required this.dateTime});
 }
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
   List<OrderItem> get orders {
     return [..._orders];
+  }
+
+  Future<void> fetchAndSetOrders() async {
+    print('start');
+    final url = Uri.parse(
+        'https://products-items-default-rtdb.firebaseio.com/orders.json');
+    print('After Url');
+    final response = await http.get(url);
+    print(response.statusCode);
+    final List<OrderItem> loadedOrders = [];
+    final extractedData = json.decode(response.body) as Map<String, dynamic>;
+
+    print(extractedData);
+    if (extractedData == null) {
+      return;
+    }
+    extractedData.forEach((orderId, orderData) {
+      loadedOrders.add(
+        OrderItem(
+          id: orderId,
+          amount: orderData['amount'],
+          dateTime: DateTime.parse(orderData['dateTime']),
+          products: (orderData['products'] as List<dynamic>)
+              .map(
+                (item) => CartItem(
+                  id: item['id'],
+                  price: item['price'],
+                  quantity: item['quantity'],
+                  title: item['title'],
+                ),
+              )
+              .toList(),
+        ),
+      );
+    });
+    print('End of function');
+
+    _orders = loadedOrders.reversed.toList();
+    notifyListeners();
   }
 
   Future<void> addOrder(List<CartItem> cartProduct, double total) async {
@@ -37,22 +76,23 @@ class Orders with ChangeNotifier {
             cartProduct
                 .map((cp) => {
                       'id': cp.id,
-                      'title': cp.title,
+                      'price': cp.price,
                       'quantity': cp.quantity,
-                      'price': cp.price
+                      'title': cp.title,
                     })
                 .toList()
           ]
         },
       ),
     );
+    print(response.statusCode);
     _orders.insert(
         0,
         OrderItem(
             id: json.decode(response.body)['name'],
             amount: total,
             products: cartProduct,
-            dataTime: DateTime.now()));
+            dateTime: DateTime.now()));
     notifyListeners();
   }
 }
