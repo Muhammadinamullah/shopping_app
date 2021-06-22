@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_complete_guide/providers/auth.dart';
 import 'package:flutter_complete_guide/providers/cart.dart';
 import 'package:flutter_complete_guide/providers/orders.dart';
 import 'package:flutter_complete_guide/screens/authScreen.dart';
@@ -20,15 +21,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          //create: (ctx) => Products(),
-          create: (ctx) => Products(),
+        ChangeNotifierProvider.value(
+          value: Auth(),
         ),
-        ChangeNotifierProvider(
+        ChangeNotifierProvider.value(
           //create: (ctx) => Products(),
-          create: (ctx) => Cart(),
+          value: Products(),
         ),
-        ChangeNotifierProvider(create: (ctx) => Orders()),
+        ChangeNotifierProvider.value(
+          //create: (ctx) => Products(),
+          value: Cart(),
+        ),
+        ChangeNotifierProvider.value(
+          value: Orders(),
+        ),
       ],
       child: MaterialApp(
           title: 'MyShop',
