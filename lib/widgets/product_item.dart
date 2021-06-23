@@ -36,47 +36,52 @@ class ProductItem extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         ),
-        footer: GridTileBar(
-          backgroundColor: Colors.black87,
-          leading: Consumer<Product>(
-            builder: (ctx, product, child) => IconButton(
-              icon: Icon(
-                product.isFavorite ? Icons.favorite : Icons.favorite_border,
-              ),
-              color: Theme.of(context).accentColor,
-              onPressed: () {
-                product.favoriteStatus(authData.token);
-                print('is favorite');
-              },
-            ),
-          ),
-          title: Text(
-            product.title,
-            textAlign: TextAlign.center,
-          ),
-          trailing: IconButton(
-            icon: Icon(
-              Icons.shopping_cart,
-            ),
-            onPressed: () {
-              cart.addItem(product.id, product.price, product.title);
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Item added to cart',
-                  ),
-                  duration: Duration(seconds: 2),
-                  action: SnackBarAction(
-                    label: 'UNDO',
-                    onPressed: () {
-                      cart.removeSingleItem(product.id);
-                    },
-                  ),
+        footer: SizedBox(
+          child: GridTileBar(
+            backgroundColor: Colors.black87,
+            leading: SizedBox(
+              width: 40,
+              child: Consumer<Product>(
+                builder: (ctx, product, child) => IconButton(
+                  icon: Icon(product.isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border),
+                  color: Theme.of(context).accentColor,
+                  onPressed: () {
+                    product.favoriteStatus(authData.token, authData.userId);
+                    print('is favorite');
+                  },
                 ),
-              );
-            },
-            color: Theme.of(context).accentColor,
+              ),
+            ),
+            title: Text(
+              product.title,
+              textAlign: TextAlign.center,
+            ),
+            trailing: IconButton(
+              icon: Icon(
+                Icons.shopping_cart,
+              ),
+              onPressed: () {
+                cart.addItem(product.id, product.price, product.title);
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Item added to cart',
+                    ),
+                    duration: Duration(seconds: 2),
+                    action: SnackBarAction(
+                      label: 'UNDO',
+                      onPressed: () {
+                        cart.removeSingleItem(product.id);
+                      },
+                    ),
+                  ),
+                );
+              },
+              color: Theme.of(context).accentColor,
+            ),
           ),
         ),
       ),

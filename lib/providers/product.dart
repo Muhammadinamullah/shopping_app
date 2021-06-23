@@ -25,17 +25,18 @@ class Product with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> favoriteStatus(String token) async {
+  Future<void> favoriteStatus(String token, String userId) async {
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
     notifyListeners();
     final url = Uri.parse(
-        'https://products-items-default-rtdb.firebaseio.com/products/$id.json?auth=$token');
+        'https://products-items-default-rtdb.firebaseio.com/userFavorites/$userId/$id.json?auth=$token');
+    print('UserFavorite URL :' + url.toString());
     try {
-      final response = await http.patch(
+      final response = await http.put(
         url,
         body: json.encode(
-          {'isFavorite': isFavorite},
+          isFavorite,
         ),
       );
       if (response.statusCode >= 400) {
